@@ -11,7 +11,7 @@ var serveStatic = require('serve-static');
 
 
 
-var StaticDirectory = path.join(__dirname, 'public');
+var StaticDirectory = path.join(__dirname, 'docs');
 
 app.use(express.static(StaticDirectory));
 // Set up a route for the home page
