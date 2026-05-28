@@ -1,57 +1,314 @@
 <!DOCTYPE html>
-
-
+<html lang="en">
 <head>
-    <html lang="en">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-     <link rel="stylesheet" href="../css/index.css">
-     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap" rel="stylesheet">
-     
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emiliano Olsen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g: #00FF94;
+  --gd: #00c96e;
+  --glow: rgba(0,255,148,0.12);
+  --bg: #080810;
+  --s: #13131f;
+  --s2: #1c1c2e;
+  --t: #eeeef8;
+  --tm: #777799;
+  --pink: #ff6b9d;
+  --purple: #9b8fff;
+  --b: rgba(0,255,148,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--t);
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+  pointer-events:none;z-index:9999;
+}
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,255,148,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,148,0.025) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0;
+}
+
+/* ---- LAYOUT ---- */
+.page{
+  max-width:960px;margin:0 auto;
+  padding:6rem 2rem 4rem;
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:auto;
+  gap:0;
+}
+
+/* ---- NAV ---- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(8,8,16,0.9);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--b);
+  padding:0.85rem 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-logo{
+  font-family:'Press Start 2P',monospace;font-size:0.6rem;
+  color:var(--g);text-decoration:none;letter-spacing:0.05em;
+}
+.nav-links{display:flex;gap:1.8rem;list-style:none;}
+.nav-links a{
+  font-size:0.72rem;font-weight:500;color:var(--tm);
+  text-decoration:none;text-transform:uppercase;letter-spacing:0.07em;
+  transition:color 0.2s;
+}
+.nav-links a:hover{color:var(--g);}
+
+/* ---- LEFT COL (sticky intro) ---- */
+.left{
+  grid-column:1;grid-row:1/3;
+  position:sticky;top:6rem;
+  height:fit-content;
+  padding-right:3rem;
+  padding-bottom:2rem;
+}
+.blink-tag{
+  font-family:'Press Start 2P',monospace;font-size:0.45rem;
+  color:var(--g);letter-spacing:0.15em;margin-bottom:1.4rem;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.blink-tag::before{content:'▶';animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+h1{
+  font-family:'Press Start 2P',monospace;
+  font-size:clamp(1.1rem,2.8vw,1.9rem);
+  line-height:1.65;color:var(--t);margin-bottom:1.2rem;
+}
+h1 .g{color:var(--g);}
+
+.tagline{
+  font-size:0.9rem;line-height:1.85;color:var(--tm);
+  font-weight:300;margin-bottom:2rem;
+}
+.tagline strong{color:var(--t);font-weight:500;}
+
+.chips{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2rem;}
+.chip{
+  font-size:0.7rem;padding:0.3rem 0.7rem;border-radius:2px;
+  font-weight:500;border:1px solid;
+}
+.chip-g{background:rgba(0,255,148,0.08);color:var(--gd);border-color:rgba(0,255,148,0.2);}
+.chip-p{background:rgba(155,143,255,0.08);color:var(--purple);border-color:rgba(155,143,255,0.2);}
+.chip-k{background:rgba(255,107,157,0.08);color:var(--pink);border-color:rgba(255,107,157,0.2);}
+.chip-gray{background:rgba(255,255,255,0.05);color:var(--tm);border-color:rgba(255,255,255,0.1);}
+
+.status{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  font-size:0.75rem;color:var(--tm);margin-bottom:2rem;
+}
+.dot{
+  width:7px;height:7px;border-radius:50%;background:var(--g);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--glow);}50%{box-shadow:0 0 0 5px transparent;}}
+
+.ctas{display:flex;gap:0.8rem;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  padding:0.65rem 1.2rem;
+  font-family:'Press Start 2P',monospace;font-size:0.42rem;
+  letter-spacing:0.08em;text-decoration:none;border-radius:2px;
+  transition:all 0.2s;border:2px solid;
+}
+.btn-solid{background:var(--g);color:#000;border-color:var(--g);}
+.btn-solid:hover{background:transparent;color:var(--g);}
+.btn-ghost{background:transparent;color:var(--g);border-color:var(--b);}
+.btn-ghost:hover{border-color:var(--g);}
+
+/* ---- RIGHT COL ---- */
+.right{
+  grid-column:2;
+  display:flex;flex-direction:column;gap:2.5rem;
+  padding-top:0.5rem;
+}
+
+/* ---- CARD ---- */
+.card{
+  background:var(--s);border:1px solid var(--b);
+  border-radius:4px;padding:1.5rem;
+  transition:border-color 0.25s,transform 0.2s;
+}
+.card:hover{border-color:rgba(0,255,148,0.35);transform:translateY(-2px);}
+
+.card-label{
+  font-family:'Press Start 2P',monospace;font-size:0.42rem;
+  color:var(--g);letter-spacing:0.12em;margin-bottom:1.1rem;
+}
+
+/* about card */
+.about-body{font-size:0.88rem;line-height:1.85;color:var(--tm);}
+.about-body strong{color:var(--t);font-weight:500;}
+.about-body p+p{margin-top:0.8rem;}
+
+/* skills grid */
+.skills-wrap{display:flex;flex-wrap:wrap;gap:0.45rem;}
+
+/* work items */
+.work-item{padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.work-item:last-child{border-bottom:none;padding-bottom:0;}
+.work-role{font-size:0.88rem;font-weight:500;color:var(--t);}
+.work-org{font-size:0.78rem;color:var(--gd);margin-top:0.15rem;}
+.work-date{font-family:'Press Start 2P',monospace;font-size:0.36rem;color:var(--tm);margin-top:0.35rem;letter-spacing:0.05em;}
+
+/* clubs */
+.clubs-wrap{display:flex;flex-direction:column;gap:0.5rem;}
+.club-row{
+  display:flex;align-items:center;gap:0.7rem;
+  font-size:0.83rem;color:var(--t);
+}
+.club-dot{width:5px;height:5px;background:var(--g);border-radius:0;flex-shrink:0;}
+.club-year{font-size:0.7rem;color:var(--tm);margin-left:auto;font-family:'Press Start 2P',monospace;font-size:0.36rem;}
+
+/* contact card */
+.contact-card{
+  background:var(--s);border:1px solid var(--b);
+  border-radius:4px;padding:1.5rem;
+  display:flex;flex-wrap:wrap;gap:0.8rem;align-items:center;
+}
+.contact-card .card-label{margin-bottom:0;flex-basis:100%;}
+.contact-link{
+  display:flex;align-items:center;gap:0.5rem;
+  font-size:0.8rem;color:var(--tm);text-decoration:none;
+  padding:0.4rem 0.8rem;border:1px solid var(--b);border-radius:2px;
+  transition:all 0.2s;
+}
+.contact-link:hover{color:var(--g);border-color:var(--g);}
+
+footer{
+  grid-column:1/3;
+  border-top:1px solid var(--b);margin-top:2rem;padding-top:1.5rem;
+  font-family:'Press Start 2P',monospace;font-size:0.38rem;
+  color:var(--tm);letter-spacing:0.1em;text-align:center;
+  position:relative;z-index:1;
+}
+footer span{color:var(--g);}
+
+@media(max-width:700px){
+  .page{grid-template-columns:1fr;padding:5rem 1.2rem 3rem;}
+  .left{position:static;grid-column:1;grid-row:auto;padding-right:0;}
+  .right{grid-column:1;}
+  footer{grid-column:1;}
+}
+</style>
 </head>
-
 <body>
-    
-    <header class="header">
-      
-      <div class = 'header-left'>
-        <div class="dropdown">
-          <button class="dropbtn">☰
-          </button>
-          <div class="dropdown-content">
-            <a href="index.html">HOME</a>
-            <a href="about.html">ABOUT</a>
-            <a href="contact.html">CONTACT</a>
-            <a href="extra.html">SPOTIFY</a>
-          </div>
-        </div>
-      </div>
-      <h1>gaming gators</h1>
-  <div class="bumpShape">
-  <div class="bumpShapeInside">
-      <div style="font-size:5vw";class="navbar">
-        <div class="navbar a">
-          <a href> </a>
-          <a href>News </a>
-          <a href>About</a>
-          <a href="index.html"  style="font-size: 55%; margin-top: 1.5vw;">Home</a>
-          <a href>Events</a>
-          <a href>Contact</a>
-          <a href> </a>
-        </div>
-      </div>
+
+<nav>
+  <a href="#" class="nav-logo">E.S.O</a>
+  <ul class="nav-links">
+    <li><a href="mailto:eogaming42@gmail.com">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+  <!-- LEFT: sticky intro -->
+  <div class="left">
+    <div class="blink-tag">PLAYER ONE</div>
+    <h1><span class="g">Emiliano</span><br>Smaserui<br>Olsen</h1>
+    <p class="tagline">
+      <strong>CS student @ SF State.</strong><br>
+      Webmaster. Game room operator.<br>
+      Park rec leader. Musician. Maker.
+    </p>
+
+    <div class="chips">
+      <span class="chip chip-g">Python</span>
+      <span class="chip chip-g">JavaScript</span>
+      <span class="chip chip-p">HTML / CSS</span>
+      <span class="chip chip-p">Java</span>
+      <span class="chip chip-gray">R</span>
+      <span class="chip chip-k">Guitar</span>
+      <span class="chip chip-k">Bass</span>
+      <span class="chip chip-k">Sewing</span>
+    </div>
+
+    <div class="status">
+      <div class="dot"></div>
+      SF Bay Area · Open to opportunities
+    </div>
+
+    <div class="ctas">
+      <a href="mailto:eogaming42@gmail.com" class="btn btn-solid">▶ Hit Me Up</a>
+      <a href="tel:4153053309" class="btn btn-ghost">Call</a>
+    </div>
   </div>
+
+  <!-- RIGHT: scrollable content -->
+  <div class="right">
+
+    <div class="card">
+      <div class="card-label">// About</div>
+      <div class="about-body">
+        <p>I'm studying <strong>Computer Science</strong> at SFSU with minors in <strong>Video Game Studies</strong> and <strong>Critical Pacific Islands &amp; Oceania Studies</strong> — a combo that's uniquely mine. Dean's List. I care about tech, culture, and community in equal measure.</p>
+        <p>I run the web for <strong>Gaming Gators</strong>, SFSU's gaming club, and keep the good vibes going at <strong>Rack n Cue</strong> — the campus spot where students play games and shoot pool for free. When I'm not coding or gaming I'm playing guitar, slapping bass, or working on a sewing project.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">// Work</div>
+      <div class="work-item">
+        <div class="work-role">Games Room Attendant</div>
+        <div class="work-org">Rack N Cue — Associated Students SFSU</div>
+        <div class="work-date">JAN 2024 – PRESENT</div>
+      </div>
+      <div class="work-item">
+        <div class="work-role">Recreation Leader</div>
+        <div class="work-org">SF Recreation and Parks Department</div>
+        <div class="work-date">JUN 2023 – PRESENT</div>
+      </div>
+      <div class="work-item">
+        <div class="work-role">Camp Assistant</div>
+        <div class="work-org">SF Recreation and Parks Department</div>
+        <div class="work-date">2018, 2019, 2022</div>
+      </div>
+      <div class="work-item">
+        <div class="work-role">Play Tester</div>
+        <div class="work-org">VGM Focus Suites</div>
+        <div class="work-date">2015</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">// Clubs &amp; Community</div>
+      <div class="clubs-wrap">
+        <div class="club-row"><div class="club-dot"></div>Gaming Gators — Webmaster<span class="club-year">2025–NOW</span></div>
+        <div class="club-row"><div class="club-dot"></div>MESA<span class="club-year">2023–NOW</span></div>
+        <div class="club-row"><div class="club-dot"></div>SFSU ACM<span class="club-year">2023–NOW</span></div>
+        <div class="club-row"><div class="club-dot"></div>Terra Nova Gamer's Club — President<span class="club-year">2021–22</span></div>
+        <div class="club-row"><div class="club-dot"></div>Ocean Shore Tech Squad (IT)<span class="club-year">2015–18</span></div>
+      </div>
+    </div>
+
+    <div class="contact-card">
+      <div class="card-label">// Contact</div>
+      <a href="mailto:eogaming42@gmail.com" class="contact-link">✉ eogaming42@gmail.com</a>
+      <a href="tel:4153053309" class="contact-link">☎ (415) 305-3309</a>
+      <span class="contact-link" style="cursor:default;">📍 Daly City, CA</span>
+    </div>
+
   </div>
-    </header>
 
-    
-    <main>
-      <p1>
-        test page<br>
-        yuhh
-    </p1>
-    </main>
+  <footer><span>Emiliano Olsen</span> · SFSU · Built with ♥ &amp; too many late nights</footer>
 
-
+</div>
 </body>
+</html>
