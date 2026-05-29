@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Record Cabinet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --carpet: #c8b89a;
+    --carpet-dark: #b5a487;
+    --wood-light: #c8934a;
+    --wood-mid: #a0702e;
+    --wood-dark: #7a5020;
+    --wood-grain: #8a6028;
+    --record-black: #1a1a1a;
+    --record-label: #e8d5a0;
+    --vinyl-shine: rgba(255,255,255,0.08);
+    --shadow: rgba(60,30,0,0.45);
+  }
+
+  body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--carpet);
+    cursor: default;
+    font-family: 'Lato', sans-serif;
+  }
+
+  /* Shag carpet texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px),
+      repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(0,0,0,0.03) 4px, rgba(0,0,0,0.03) 5px),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 2px, transparent 2px, transparent 8px),
+      repeating-linear-gradient(-45deg, rgba(180,140,90,0.15) 0px, rgba(180,140,90,0.15) 1px, transparent 1px, transparent 7px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Ambient room light */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 20%, rgba(255,230,160,0.18) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── CABINET ─────────────────────────────────────────── */
+  .cabinet {
+    position: relative;
+    z-index: 1;
+    width: 520px;
+    user-select: none;
+  }
+
+  /* Record player sits on top */
+  .turntable {
+    position: relative;
+    width: 240px;
+    height: 80px;
+    margin: 0 auto 0;
+    left: -10px;
+  }
+
+  .turntable-body {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 60px;
+    background: linear-gradient(180deg, #2a1a08 0%, #1a0e04 100%);
+    border-radius: 6px 6px 3px 3px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    overflow: hidden;
+  }
+
+  .turntable-body::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 60%);
+  }
+
+  /* Platter */
+  .platter {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #111 0deg, #222 30deg, #111 60deg, #222 90deg,
+      #111 120deg, #222 150deg, #111 180deg, #222 210deg,
+      #111 240deg, #222 270deg, #111 300deg, #222 330deg, #111 360deg
+    );
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(255,255,255,0.05);
+    transition: transform 2s ease;
+  }
+
+  .platter-spindle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #888;
+    z-index: 2;
+  }
+
+  /* The vinyl record that animates down */
+  .flying-record {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #111;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    transform-origin: center;
+    opacity: 0;
+    z-index: 10;
+    transition: none;
+    pointer-events: none;
+  }
+
+  .flying-record::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #c8a84a 0%, #a0802a 60%, #7a6020 100%);
+  }
+
+  .flying-record::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #1a1a1a;
+  }
+
+  /* Tonearm */
+  .tonearm {
+    position: absolute;
+    top: 2px;
+    right: 18px;
+    width: 36px;
+    height: 3px;
+    background: linear-gradient(90deg, #888, #aaa, #888);
+    border-radius: 2px;
+    transform-origin: right center;
+    transform: rotate(-30deg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 5;
+  }
+
+  .tonearm::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -1px;
+    width: 6px;
+    height: 5px;
+    background: #666;
+    border-radius: 2px;
+  }
+
+  /* ─── MAIN CABINET BOX ───────────────────────────────── */
+  .cabinet-box {
+    position: relative;
+    width: 100%;
+    height: 340px;
+    background: linear-gradient(180deg,
+      var(--wood-light) 0%,
+      var(--wood-mid) 30%,
+      var(--wood-mid) 70%,
+      var(--wood-dark) 100%
+    );
+    border-radius: 6px 6px 10px 10px;
+    box-shadow:
+      0 20px 60px var(--shadow),
+      0 6px 20px rgba(0,0,0,0.3),
+      inset 2px 0 0 rgba(255,255,255,0.15),
+      inset -2px 0 0 rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+
+  /* Wood grain lines */
+  .cabinet-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 8px,
+        rgba(0,0,0,0.04) 8px,
+        rgba(0,0,0,0.04) 9px
+      ),
+      repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 22px,
+        rgba(255,255,255,0.06) 22px,
+        rgba(255,255,255,0.06) 23px
+      );
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* Cabinet top gloss */
+  .cabinet-box::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+    border-radius: 6px 6px 0 0;
+    pointer-events: none;
+  }
+
+  /* ─── SHELF / RECORD AREA ────────────────────────────── */
+  .shelf-area {
+    position: absolute;
+    top: 60px;
+    left: 0; right: 0;
+    bottom: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+  }
+
+  /* Shelf lip top & bottom */
+  .shelf-lip {
+    position: absolute;
+    left: 0; right: 0;
+    height: 10px;
+    background: linear-gradient(180deg, var(--wood-dark) 0%, var(--wood-mid) 100%);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    z-index: 2;
+  }
+  .shelf-lip.top { top: 0; border-radius: 2px; }
+  .shelf-lip.bottom { bottom: 0; border-radius: 0 0 2px 2px; }
+
+  /* Back of shelf (slightly darker) */
+  .shelf-back {
+    position: absolute;
+    inset: 10px 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 10%, rgba(0,0,0,0.1) 90%, rgba(0,0,0,0.3) 100%);
+  }
+
+  /* ─── RECORDS ────────────────────────────────────────── */
+  .records {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 160px;
+    padding: 0 8px;
+  }
+
+  .record-slot {
+    position: relative;
+    width: 34px;
+    height: 155px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform-origin: bottom center;
+  }
+
+  .record-slot:hover {
+    transform: translateY(-22px);
+    z-index: 10;
+  }
+
+  /* The album spine (visible face) */
+  .record-spine {
+    position: absolute;
+    inset: 0;
+    border-radius: 2px 2px 0 0;
+    overflow: hidden;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.4), -1px 0 3px rgba(0,0,0,0.2);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .record-slot:hover .record-spine {
+    box-shadow: 4px 0 14px rgba(0,0,0,0.6), -1px 0 4px rgba(0,0,0,0.3);
+  }
+
+  /* Edge of vinyl peeking out at top */
+  .record-slot::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 6px;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    background: radial-gradient(circle at 50% -20%, #333 0%, #111 70%);
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .record-slot:hover::before { opacity: 1; }
+
+  /* Cabinet legs */
+  .cabinet-legs {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px;
+    margin-top: -2px;
+  }
+
+  .leg {
+    width: 22px;
+    height: 36px;
+    background: linear-gradient(180deg, var(--wood-dark) 0%, #4a2e10 100%);
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.35), inset 2px 0 0 rgba(255,255,255,0.1);
+  }
+
+  /* Cabinet bottom decor strip */
+  .cabinet-strip {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    height: 14px;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba(255,200,100,0.15) 30%,
+      rgba(255,200,100,0.15) 70%,
+      transparent
+    );
+    border-top: 1px solid rgba(255,255,255,0.12);
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+  }
+
+  /* ─── MODAL ──────────────────────────────────────────── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30,15,5,0.7);
+    backdrop-filter: blur(3px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+
+  .modal-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: linear-gradient(160deg, #f5edd8 0%, #ede0c4 100%);
+    border-radius: 4px;
+    padding: 36px 40px 32px;
+    width: 440px;
+    max-width: 90vw;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(200,150,60,0.3);
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .modal-overlay.visible .modal {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--wood-dark), var(--wood-light), var(--wood-dark));
+  }
+
+  .modal-record-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #111 0deg, #1e1e1e 20deg, #111 40deg, #1e1e1e 60deg,
+      #111 80deg, #1e1e1e 100deg, #111 120deg, #1e1e1e 140deg,
+      #111 160deg, #1e1e1e 180deg, #111 200deg, #1e1e1e 220deg,
+      #111 240deg, #1e1e1e 260deg, #111 280deg, #1e1e1e 300deg,
+      #111 320deg, #1e1e1e 340deg, #111 360deg
+    );
+    margin: 0 auto 20px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: spin 4s linear infinite;
+  }
+
+  .modal-record-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #d4a84a 0%, #a07030 100%);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: #3a2010;
+    text-align: center;
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .modal-subtitle {
+    font-size: 0.8rem;
+    color: #7a5a30;
+    text-align: center;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    font-weight: 300;
+  }
+
+  .modal-content {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: #4a3010;
+    line-height: 1.7;
+    text-align: center;
+    min-height: 60px;
+    padding: 16px;
+    background: rgba(200,150,60,0.08);
+    border-radius: 3px;
+    border: 1px solid rgba(200,150,60,0.2);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    color: #a07840;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.2s, transform 0.2s;
+  }
+
+  .modal-close:hover {
+    color: #3a2010;
+    transform: rotate(90deg);
+  }
+
+  /* ─── ALBUM COLORS ───────────────────────────────────── */
+  .r1 { background: linear-gradient(180deg, #c0392b 0%, #7b241c 100%); }
+  .r2 { background: linear-gradient(180deg, #1a3a5c 0%, #0d1f33 100%); }
+  .r3 { background: linear-gradient(180deg, #2d5a27 0%, #1a3518 100%); }
+  .r4 { background: linear-gradient(180deg, #7b4f1a 0%, #4a2e0a 100%); }
+  .r5 { background: linear-gradient(180deg, #5a2d6e 0%, #331a40 100%); }
+  .r6 { background: linear-gradient(180deg, #1a4a4a 0%, #0d2828 100%); }
+  .r7 { background: linear-gradient(180deg, #8a7a20 0%, #5a4e10 100%); }
+  .r8 { background: linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%); }
+  .r9 { background: linear-gradient(180deg, #7a2a2a 0%, #4a1515 100%); }
+  .r10 { background: linear-gradient(180deg, #2a4a7a 0%, #162540 100%); }
+  .r11 { background: linear-gradient(180deg, #4a7a2a 0%, #253d15 100%); }
+</style>
+</head>
+<body>
+
+<div class="cabinet">
+
+  <!-- Record player on top -->
+  <div class="turntable">
+    <div class="turntable-body">
+      <div class="platter" id="platter">
+        <div class="platter-spindle"></div>
+      </div>
+      <div class="flying-record" id="flyingRecord"></div>
+      <div class="tonearm" id="tonearm"></div>
+    </div>
+  </div>
+
+  <!-- Cabinet box -->
+  <div class="cabinet-box">
+
+    <!-- Upper compartment (above records) -->
+    <div style="position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:center;justify-content:center;z-index:2;">
+      <div style="width:80px;height:3px;background:linear-gradient(90deg,transparent,rgba(255,200,100,0.4),transparent);border-radius:2px;"></div>
+    </div>
+
+    <!-- Record shelf -->
+    <div class="shelf-area">
+      <div class="shelf-lip top"></div>
+      <div class="shelf-back"></div>
+      <div class="records" id="recordsContainer">
+        <!-- Records injected by JS -->
+      </div>
+      <div class="shelf-lip bottom"></div>
+    </div>
+
+    <!-- Decorative strip -->
+    <div class="cabinet-strip"></div>
+
+  </div>
+
+  <!-- Cabinet legs -->
+  <div class="cabinet-legs">
+    <div class="leg"></div>
+    <div class="leg"></div>
+    <div class="leg"></div>
+    <div class="leg"></div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-record-icon"></div>
+    <h2 id="modalTitle">Album Title</h2>
+    <div class="modal-subtitle" id="modalArtist">Artist • Year</div>
+    <div class="modal-content" id="modalContent">
+      Edit this text to describe the album — its story, the feeling it brings, a favourite lyric, or anything you'd like.
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Album data — edit as you like ──────────────────────────────
+  const albums = [
+    { title: "Fun Fact",    artist: "I'm a published Author", color: "r1",  text: "https://dokumen.tips/documents/a-quest-for-questions-by-d2d2-and-eocrafterman.html" },
+    { title: "Skill",    artist: "Sewing", color: "r2",  text: "I love to sew on occasion, and have a jacket with patches, pins, and a chainmail shoulder piece made from bottle tabs" },
+    { title: "Hobby",    artist: "Movies", color: "r3",  text: "I love watching movies, and have started bringing a DvD player to watch them at work. If all goes to plan, stop by Rack N Cue on mondays to catch some flicks" },
+    { title: "Fun Fact",    artist: "My first job", color: "r4",  text: "My first paid job was playing Minecraft Story Mode for marketing research before it released." },
+    { title: "Skill",    artist: "Music", color: "r5",  text: "I love to play guitar and bass, and used to be in a band" },
+    { title: "Fun Fact",    artist: "High School", color: "r6",  text: "I was a 4 year wrestler, and the leader of the marching band in high school" },
+    { title: "Hobby",    artist: "Gaming", color: "r7",  text: "I am currently playing modded Minecraft. Just AFKing while crop grow. " },
+    { title: "Skill",    artist: "Public Speaking", color: "r8",  text: "i was a theater kid..." },
+    { title: "Skill",    artist: "unga bunga fire", color: "r9",  text: "I can start a fire with nothing but scavenged materials and flint n steel. Once even got an ember with two sticks." },
+    { title: "Fun Fact",    artist: "Tastes", color: "r10", text: "My favorite energy drink is the Watermelon Warheads flavor of ghost" },
+    { title: "Hobby",    artist: "Sleep", color: "r11", text: "I'm so tired I want to go to bed" },
+  ];
+
+  // ── Build records ───────────────────────────────────────────────
+  const container = document.getElementById('recordsContainer');
+  albums.forEach((album, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'record-slot';
+    slot.innerHTML = `<div class="record-spine ${album.color}"></div>`;
+    slot.addEventListener('click', () => playRecord(i, slot));
+    container.appendChild(slot);
+  });
+
+  // ── Animation & modal ───────────────────────────────────────────
+  const overlay    = document.getElementById('modalOverlay');
+  const modalClose = document.getElementById('modalClose');
+  const tonearm    = document.getElementById('tonearm');
+  const platter    = document.getElementById('platter');
+  let   isAnimating = false;
+
+  function playRecord(index, slotEl) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    const album = albums[index];
+    const slotRect  = slotEl.getBoundingClientRect();
+    const platterEl = document.querySelector('.platter');
+    const platterRect = platterEl.getBoundingClientRect();
+
+    // Create floating record clone for the drop animation
+    const floater = document.createElement('div');
+    floater.style.cssText = `
+      position: fixed;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #111;
+      z-index: 200;
+      pointer-events: none;
+      left: ${slotRect.left + slotRect.width/2 - 22}px;
+      top:  ${slotRect.top  - 30}px;
+      transition: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+    `;
+    // Label dot
+    floater.innerHTML = `
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+        width:14px;height:14px;border-radius:50%;
+        background:radial-gradient(circle,#d4a84a 0%,#8a5a20 100%);"></div>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+        width:4px;height:4px;border-radius:50%;background:#111;"></div>
+    `;
+    document.body.appendChild(floater);
+
+    // Fade & lift the slot
+    slotEl.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+    slotEl.style.transform  = 'translateY(-60px)';
+    slotEl.style.opacity    = '0';
+
+    // After lift, fly the floater to the platter
+    setTimeout(() => {
+      const targetX = platterRect.left + platterRect.width/2  - 22;
+      const targetY = platterRect.top  + platterRect.height/2 - 22;
+
+      floater.style.transition = 'left 0.7s cubic-bezier(0.4,0,0.2,1), top 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s ease, opacity 0.3s ease 0.5s';
+      floater.style.left       = targetX + 'px';
+      floater.style.top        = targetY + 'px';
+      floater.style.transform  = 'scale(0.85)';
+      floater.style.opacity    = '0';
+
+      // Sweep tonearm in
+      setTimeout(() => {
+        tonearm.style.transform = 'rotate(-5deg)';
+        platter.style.animation = 'platterSpin 1.8s linear infinite';
+      }, 500);
+
+      // Show modal
+      setTimeout(() => {
+        document.getElementById('modalTitle').textContent   = album.title;
+        document.getElementById('modalArtist').textContent  = album.artist;
+        document.getElementById('modalContent').textContent = album.text;
+        overlay.classList.add('visible');
+        floater.remove();
+        isAnimating = false;
+      }, 900);
+
+    }, 350);
+  }
+
+  function closeModal() {
+    overlay.classList.remove('visible');
+
+    // Reset tonearm and platter
+    setTimeout(() => {
+      tonearm.style.transform = 'rotate(-30deg)';
+      platter.style.animation = '';
+    }, 400);
+
+    // Restore all slots
+    document.querySelectorAll('.record-slot').forEach(s => {
+      s.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+      s.style.transform  = '';
+      s.style.opacity    = '';
+    });
+  }
+
+  modalClose.addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  // Platter spin keyframes via JS (can't use @keyframes in inline style)
+  const styleTag = document.createElement('style');
+  styleTag.textContent = `@keyframes platterSpin { to { transform: rotate(360deg); } }`;
+  document.head.appendChild(styleTag);
+</script>
+</body>
+</html>
